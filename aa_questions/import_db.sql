@@ -1,3 +1,9 @@
+DROP TABLE IF EXISTS question_follows; 
+DROP TABLE IF EXISTS question_likes;
+DROP TABLE IF EXISTS replies;
+DROP TABLE IF EXISTS questions; 
+DROP TABLE IF EXISTS users;
+
 PRAGMA foreign_keys = ON;
 
 CREATE TABLE users (
@@ -20,6 +26,32 @@ CREATE TABLE questions (
     
     FOREIGN KEY(author_id) REFERENCES users(id)
 );
+INSERT INTO
+  questions (title, body, author_id)
+SELECT
+  "Ned Question", "NED NED NED", 1
+FROM
+  users
+WHERE
+  users.fname = "Eddard" AND users.lname = "Stark";
+
+INSERT INTO
+  questions (title, body, author_id)
+SELECT
+  "Arya Question", "test output", users.id
+FROM
+  users
+WHERE
+  users.fname = "Arya" AND users.lname = "Stark";
+
+INSERT INTO
+  questions (title, body, author_id)
+SELECT
+  "Sansa Question", "MEOW MEOW ", users.id
+FROM
+  users
+WHERE
+  users.fname = "Sansa" AND users.lname = "Stark";
 
 CREATE TABLE question_follows (
     id INTEGER PRIMARY KEY,
@@ -28,6 +60,16 @@ CREATE TABLE question_follows (
 
     FOREIGN KEY(user_id) REFERENCES users(id),
     FOREIGN KEY(question_id) REFERENCES questions(id)
+);
+
+INSERT INTO
+  question_follows (user_id, question_id)
+VALUES
+  ((SELECT id FROM users WHERE fname = "Eddard" AND lname = "Stark"),
+  (SELECT id FROM questions WHERE title = "Ned Question")),
+
+  ((SELECT id FROM users WHERE fname = "Arya" AND lname = "Stark"),
+  (SELECT id FROM questions WHERE title = "Arya Question")
 );
 
 CREATE TABLE replies (
@@ -42,6 +84,25 @@ CREATE TABLE replies (
     FOREIGN KEY(question_id) REFERENCES questions(id)
 );
 
+INSERT INTO
+  replies (question_id, parent_reply_id, writer_id, body)
+VALUES
+  ((SELECT id FROM questions WHERE title = "Arya Question"),
+  NULL,
+  (SELECT id FROM users WHERE fname = "Eddard" AND lname = "Stark"),
+  "Did you say NOW NOW NOW?"
+);
+
+INSERT INTO
+  replies (question_id, parent_reply_id, writer_id, body)
+VALUES
+  ((SELECT id FROM questions WHERE title = "Sansa Question"),
+  (SELECT id FROM replies WHERE body = "Did you say NOW NOW NOW?"),
+  (SELECT id FROM users WHERE fname = "Sansa" AND lname = "Stark"),
+  "I think she said MEOW MEOW MEOW."
+);
+
+
 CREATE TABLE question_likes (
     id INTEGER PRIMARY KEY,
     user_id INTEGER NOT NULL,
@@ -51,4 +112,5 @@ CREATE TABLE question_likes (
     FOREIGN KEY(question_id) REFERENCES questions(id)
 
 );
+
 
