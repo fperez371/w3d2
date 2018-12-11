@@ -1,3 +1,8 @@
+require_relative 'questions_database'
+require_relative 'question'
+require_relative 'question_follow'
+require_relative 'question_like'
+
 class Question
     def self.find_by_id(id)
         question_data = QuestionsDatabase.get_first_row(<<-SQL, id: id)

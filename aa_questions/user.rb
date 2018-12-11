@@ -1,6 +1,9 @@
+require_relative 'questions_database'
+require_relative 'question'
+require_relative 'question_follow'
+require_relative 'question_like'
 
-
-class User
+class User 
 
    def self.find_by_id(id)
         user_data = QuestionsDatabase.get_first_row(<<-SQL, id: id)
@@ -24,6 +27,7 @@ class User
         WHERE
             users.fname = :fname AND users.lname = :lname
             SQL
+            user_data.nil? ? nil : User.new(user_data)
    end
 
     attr_reader :id
